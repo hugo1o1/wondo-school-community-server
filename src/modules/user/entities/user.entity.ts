@@ -17,6 +17,12 @@ export class User {
   @Column({ name: 'avatar_url', type: 'varchar', length: 512, default: '' })
   avatarUrl: string;
 
+  @Column({ type: 'varchar', length: 64, nullable: true, unique: true })
+  username: string;
+
+  @Column({ type: 'varchar', length: 128, nullable: true, select: false })
+  password: string;
+
   @Column({ type: 'varchar', length: 200, default: '' })
   bio: string;
 

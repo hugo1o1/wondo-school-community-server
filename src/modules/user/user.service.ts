@@ -29,6 +29,14 @@ export class UserService {
     return this.userRepo.findOne({ where: { openid } });
   }
 
+  async findByUsernameWithPassword(username: string): Promise<User | null> {
+    return this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.username = :username', { username })
+      .getOne();
+  }
+
   async create(data: Partial<User>): Promise<User> {
     const user = this.userRepo.create(data);
     return this.userRepo.save(user);

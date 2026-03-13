@@ -1,6 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as bcrypt from 'bcryptjs';
 import { UserService } from '../user/user.service';
 
 @Injectable()
@@ -29,6 +30,56 @@ export class AuthService {
     return {
       token,
       refreshToken,
+      user: {
+        id: user.id,
+        nickname: user.nickname,
+        avatarUrl: user.avatarUrl,
+      },
+    };
+  }
+
+  async webLogin(username: string, password: string) {
+    const user = await this.userService.findByUsernameWithPassword(username);
+    if (!user || !user.password) {
+      throw new UnauthorizedException('用户名或密码错误');
+    }
+    const valid = await bcrypt.compare(password, user.password);
+    if (!valid) {
+      throw new UnauthorizedException('用户名或密码错误');
+    }
+    if (user.status === 1) {
+      throw new UnauthorizedException('账号已被禁用');
+    }
+
+    const payload = { sub: user.id, openid: user.openid };
+    const token = this.jwtService.sign(payload);
+    return {
+      token,
+      user: {
+        id: user.id,
+        nickname: user.nickname,
+        avatarUrl: user.avatarUrl,
+      },
+    };
+  }
+
+  async webRegister(username: string, password: string, nickname: string) {
+    const existing = await this.userService.findByUsernameWithPassword(username);
+    if (existing) {
+      throw new BadRequestException('用户名已存在');
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = await this.userService.create({
+      username,
+      password: hashedPassword,
+      nickname: nickname || username,
+      openid: `web_${username}_${Date.now()}`,
+    });
+
+    const payload = { sub: user.id, openid: user.openid };
+    const token = this.jwtService.sign(payload);
+    return {
+      token,
       user: {
         id: user.id,
         nickname: user.nickname,

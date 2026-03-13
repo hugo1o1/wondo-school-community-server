@@ -15,6 +15,18 @@ export class AuthController {
     return this.authService.wechatLogin(dto.code);
   }
 
+  @Post('web-login')
+  @ApiOperation({ summary: 'Web端账密登录' })
+  async webLogin(@Body() body: { username: string; password: string }) {
+    return this.authService.webLogin(body.username, body.password);
+  }
+
+  @Post('web-register')
+  @ApiOperation({ summary: 'Web端注册' })
+  async webRegister(@Body() body: { username: string; password: string; nickname?: string }) {
+    return this.authService.webRegister(body.username, body.password, body.nickname || body.username);
+  }
+
   @Post('refresh-token')
   @ApiOperation({ summary: '刷新Token' })
   async refreshToken(@Body() dto: RefreshTokenDto) {
