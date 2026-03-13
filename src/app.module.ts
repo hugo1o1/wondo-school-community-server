@@ -16,6 +16,7 @@ import { UploadModule } from './modules/upload/upload.module';
 import { NotificationModule } from './modules/notification/notification.module';
 import { CampusModule } from './modules/campus/campus.module';
 import { ReviewModule } from './modules/review/review.module';
+import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
   imports: [
@@ -57,6 +58,7 @@ import { ReviewModule } from './modules/review/review.module';
     NotificationModule,
     CampusModule,
     ReviewModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService],
